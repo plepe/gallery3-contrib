@@ -51,9 +51,18 @@ class Uploader_Controller extends Controller {
           $item->name = basename($files_list['name'][$index]);
           $item->title = item::convert_filename_to_title($item->name);
           $item->parent_id = $album->id;
-          $item->set_data_file($temp_filename);
 
           $path_info = @pathinfo($item->name);
+
+          // rename tmp file, so that it has an extension
+          if (array_key_exists("extension", $path_info)) {
+            $new_temp_filename = $temp_filename . '.' . $path_info["extension"];
+            rename($temp_filename, $new_temp_filename);
+            $temp_filename = $new_temp_filename;
+          }
+
+          $item->set_data_file($temp_filename);
+
           if (array_key_exists("extension", $path_info) &&
               in_array(strtolower($path_info["extension"]), array("flv", "mp4", "m4v"))) {
             $item->type = "movie";
